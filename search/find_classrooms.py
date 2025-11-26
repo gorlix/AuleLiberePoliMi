@@ -3,8 +3,8 @@ import requests
 from bs4 import BeautifulSoup
 import json
 
-URL = "https://www7.ceda.polimi.it/spazi/spazi/controller/OccupazioniGiornoEsatto.do"
-BASE_URL = "https://www7.ceda.polimi.it/spazi/spazi/controller/"
+URL = "https://onlineservices.polimi.it/spazi/spazi/controller/OccupazioniGiornoEsatto.do"
+BASE_URL = "https://onlineservices.polimi.it/spazi/spazi/controller/"
 BUILDING = 'innerEdificio'
 ROOM = 'dove'
 LECTURE = 'slot'
@@ -39,7 +39,12 @@ def find_classrooms(location , day , month , year):
     info[buildingName] = {} #first initialization due to table format
 
     params = {'csic': location , 'categoria' : 'tutte', 'tipologia' : 'tutte', 'giorno_day' : day , 'giorno_month' : month, 'giorno_year' : year , 'jaf_giorno_date_format' : 'dd%2FMM%2Fyyyy'  , 'evn_visualizza' : ''}
-    r = requests.get(URL , params= params)
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+    r = requests.get(URL , params= params, headers=headers)
+    
+    if r.status_code != 200:
+        print(f"Error: Failed to fetch data. Status code: {r.status_code}")
+        return {}
     
     soup = BeautifulSoup(r.text, 'html.parser')
     tableContainer = soup.find("div", {"id": "tableContainer"})
