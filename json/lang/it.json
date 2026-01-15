@@ -1,36 +1,34 @@
 {
-    "texts":
-    {
-        "welcome": "Ciao <b>{}</b>! Questo è Aule Libere Polimi bot, con questo bot sarai in grado di cercare le aule libere per l'intera settimana!\nQuesto bot è stato sviluppato da <b><a href='telegram.me/daniele_ferrazzo'>me</a></b>, per qualsiasi problema, chiedi!.\nSe vuoi ulteriori informazioni premi info!\nPuoi terminare in qualsiasi momento la conversazione con il comando /terminate , attenzione così facendo eliminerai tutte le tue preferenze!",
+    "texts": {
+        "welcome": "Ciao <b>{}</b>! Questo è Aule Libere Polimi bot, con questo bot sarai in grado di cercare le aule libere per l'intera settimana!\nQuesto bot è mantenuto da <b><a href='https://github.com/gorlix'>Alessandro Gorla (Gorlix)</a></b> (fork di <b><a href='https://github.com/feDann'>FeDann</a></b>), per qualsiasi problema, chiedi!.\nSe vuoi ulteriori informazioni premi info!\nPuoi terminare in qualsiasi momento la conversazione con il comando /terminate , attenzione così facendo eliminerai tutte le tue preferenze!",
         "location": "Seleziona il campus",
-        "day" : "Seleziona il giorno",
-        "starting_time" : "Seleziona l'orario iniziale",
-        "ending_time" : "Seleziona l'orario finale",
+        "day": "Seleziona il giorno",
+        "starting_time": "Seleziona l'orario iniziale",
+        "ending_time": "Seleziona l'orario finale",
         "error": "Sei stato bonkato, usa i pulsanti!",
-        "ops" : "Il PoliMi adesso è chiuso!\nTi darò invee le informazioni sulle aule libere di domattina!",
+        "ops": "Il PoliMi adesso è chiuso!\nTi darò invee le informazioni sulle aule libere di domattina!",
         "terminate": "Conversazione terminata!\nPremi /start per iniziare una nuova conversazione!",
-        "cancel" : "Torno indietro⬅",
-        "info" : "Per iniziare la ricerca premi il pulsante \"🔍Cerca\" e dopo inserisci usanto gli appositi pulsanti le informazioni richieste.\n\nIl pulsante \"🕒Ora\" ti permette , dopo aver impostato le preferenze, di cercare velocemente le aule libere!\n\nIl pulsante \"⚙️Preferenze\" ti permette di impostare il tuo campus preferito e la durata in ore per la ricerca rapida, inoltre ti permette di selezionare la tua lingua preferita!\n\nSe vuoi dare un'occhiata al codice lo puoi trovare su GitHub <a href='https://github.com/feDann/AuleLiberePoliMi'>qui</a>",
-        "settings" : "Da qui puoi impostare la tua lingua preferita, campus preferito e durata in ore per la ricerca rapida!",
-        "language" : "Seleziona la tua lingua preferita",
-        "campus" : "Seleziona il tuo campus preferito per la ricerca rapida",
-        "time" : "Seleziona il numero di ore per la ricerca rapida",
-        "success" : "Fatto👍🏻",
-        "missing" : "Non hai ancora indicato il tuo campus preferito!\nPer usare questa funzione devi prima impostare le tue preferenze",
-        "exception" : "C'è stato un problema durante la ricerca☹️\nRitenta più tardi o contattami  <a href='telegram.me/daniele_ferrazzo'>qui</a> per ulteriori informazioni",
-        "until" : "fino alle"
+        "cancel": "Torno indietro⬅",
+        "info": "Per iniziare la ricerca premi il pulsante \"🔍Cerca\" e dopo inserisci usanto gli appositi pulsanti le informazioni richieste.\n\nIl pulsante \"🕒Ora\" ti permette , dopo aver impostato le preferenze, di cercare velocemente le aule libere!\n\nIl pulsante \"⚙️Preferenze\" ti permette di impostare il tuo campus preferito e la durata in ore per la ricerca rapida, inoltre ti permette di selezionare la tua lingua preferita!\n\nSe vuoi dare un'occhiata al codice lo puoi trovare su GitHub <a href='https://github.com/gorlix/AuleLiberePoliMi'>qui</a>. Questo progetto è un fork di <a href='https://github.com/feDann/AuleLiberePoliMi'>questo repository</a>.",
+        "settings": "Da qui puoi impostare la tua lingua preferita, campus preferito e durata in ore per la ricerca rapida!",
+        "language": "Seleziona la tua lingua preferita",
+        "campus": "Seleziona il tuo campus preferito per la ricerca rapida",
+        "time": "Seleziona il numero di ore per la ricerca rapida",
+        "success": "Fatto👍🏻",
+        "missing": "Non hai ancora indicato il tuo campus preferito!\nPer usare questa funzione devi prima impostare le tue preferenze",
+        "exception": "C'è stato un problema durante la ricerca☹️\nRitenta più tardi o contattami <a href='https://github.com/gorlix'>Alessandro Gorla</a> per ulteriori informazioni",
+        "until": "fino alle"
     },
-    "keyboards" : 
-    {
-        "search" : "🔍Cerca",
-        "now" : "🕒Ora",
-        "info" : "ℹinfo",
-        "preferences" : "⚙️Preferenze",
-        "language" : "Lingua",
-        "campus" : "Campus Preferito",
-        "time" : "Durata della Ricerca",
-        "cancel" :  "/Indietro",
+    "keyboards": {
+        "search": "🔍Cerca",
+        "now": "🕒Ora",
+        "info": "ℹinfo",
+        "preferences": "⚙️Preferenze",
+        "language": "Lingua",
+        "campus": "Campus Preferito",
+        "time": "Durata della Ricerca",
+        "cancel": "/Indietro",
         "today": "Oggi",
-        "tomorrow" : "Domani" 
+        "tomorrow": "Domani"
     }
 }
