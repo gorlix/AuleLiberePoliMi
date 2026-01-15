@@ -422,9 +422,13 @@ def cancel(update: Update, context: CallbackContext):
 
 """BOT INITIALIZATION"""
 
+DATAPATH = "data/"
+if not os.path.exists(DATAPATH):
+    os.mkdir(DATAPATH)
+
 def main():
     #add persistence for states
-    pp = PicklePersistence(filename='aulelibere_pp')
+    pp = PicklePersistence(filename=join(DATAPATH, 'aulelibere_pp'))
     
     regex = regex_builder.RegexBuilder(texts)
 
@@ -450,6 +454,13 @@ def main():
 
     dispatcher.add_error_handler(errorhandler.error_handler)
     dispatcher.add_handler(conv_handler)
+    
+    # Heartbeat job
+    def heartbeat(context: CallbackContext):
+        with open("heartbeat", "w") as f:
+            f.write(str(time.time()))
+    
+    updater.job_queue.run_repeating(heartbeat, interval=30, first=1)
 
     updater.start_polling()
 

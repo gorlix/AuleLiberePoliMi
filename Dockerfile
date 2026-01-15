@@ -2,8 +2,8 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-# Install system dependencies if any (none obvious from requirements, but good practice to clean apt)
-# RUN apt-get update && apt-get install -y --no-install-recommends gcc && rm -rf /var/lib/apt/lists/*
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
@@ -14,7 +14,7 @@ COPY search/ ./search/
 COPY json/ ./json/
 COPY functions/ ./functions/
 
-# Create log directory
-RUN mkdir -p log
+# Create log and data directories
+RUN mkdir -p log data
 
 CMD ["python", "bot.py"]
