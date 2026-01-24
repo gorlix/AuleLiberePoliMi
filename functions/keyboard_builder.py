@@ -16,8 +16,28 @@ class KeyboadBuilder:
     def initial_keyboard(self , lang):
         return [[self.texts[lang]["keyboards"]["search"]] ,[self.texts[lang]["keyboards"]["now"]] , [self.texts[lang]["keyboards"]["info"] ,self.texts[lang]["keyboards"]["preferences"] ]]
 
-    def location_keyboard(self , lang):
-        return [[self.texts[lang]["keyboards"]["cancel"]]] + [[x]for x in self.location_dict]
+    def location_keyboard(self, lang, campus=None):
+        """
+        Se campus è None ritorna la lista dei campus.
+        Se campus è specificato ritorna la lista delle sotto-sedi di quel campus,
+        con un pulsante 'Indietro' per tornare alla lista dei campus.
+        """
+        cancel = self.texts[lang]["keyboards"]["cancel"]
+
+        if campus is None:
+            kb = [[cancel]]
+            for c in self.location_dict:
+                kb.append([c])
+            return kb
+
+        # mostra le sotto-sedi del campus selezionato
+        data = self.location_dict.get(campus, {})
+        sedi = data.get("sedi", {}) if isinstance(data, dict) else {}
+        kb = [[cancel, "Indietro"]]
+        if sedi:
+            for sede in sedi:
+                kb.append([sede])
+        return kb
 
     def day_keyboard(self , lang):
         return [[self.texts[lang]["keyboards"]["cancel"]]] + [[(datetime.now(pytz.timezone('Europe/Rome')) + timedelta(days=x)).strftime("%d/%m/%Y") if x > 1 else (self.texts[lang]["keyboards"]["today"] if x == 0 else self.texts[lang]["keyboards"]["tomorrow"])] for x in range(7)]

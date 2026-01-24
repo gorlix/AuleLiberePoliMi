@@ -29,7 +29,7 @@
         "language": "Language",
         "campus": "Preferred Campus",
         "time": "Search Duration",
-        "cancel": "/Back",
+        "cancel": "❌Back",
         "today": "Today",
         "tomorrow": "Tomorrow"
     }
