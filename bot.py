@@ -347,6 +347,8 @@ def set_sublocation_state(update: Update, context: CallbackContext) -> int:
         if campus and campus in location_dict:
             # Save the CAMPUS CODE (e.g. MIA)
             context.user_data["location"] = location_dict[campus]["code"]
+            # Save the NAME for display
+            context.user_data["location_name"] = campus
             update.message.reply_text(texts[lang]["texts"]['day'],
                                       reply_markup=ReplyKeyboardMarkup(KEYBOARDS.day_keyboard(lang), one_time_keyboard=True))
             return SET_DAY
@@ -364,6 +366,7 @@ def set_sublocation_state(update: Update, context: CallbackContext) -> int:
          if message in sedi:
              # Save the SEDE CODE (e.g. MIA02)
              context.user_data["location"] = sedi[message]
+             context.user_data["location_name"] = message
              update.message.reply_text(texts[lang]["texts"]['day'],
                                        reply_markup=ReplyKeyboardMarkup(KEYBOARDS.day_keyboard(lang), one_time_keyboard=True))
              return SET_DAY
@@ -427,6 +430,8 @@ def end_state(update: Update , context: CallbackContext) ->int:
     start_time = context.user_data['start_time']
     date = context.user_data['date']
     location = context.user_data['location']
+    location_name = context.user_data.get('location_name', location) # Fallback to code if name missing
+    
     ret ,end_time = input_check.end_time_check(message ,start_time)
 
     if not ret:
@@ -440,7 +445,10 @@ def end_state(update: Update , context: CallbackContext) ->int:
         update.message.reply_text(texts[lang]["texts"]["loading"])
         # Pass location code directly
         available_rooms = find_free_room(float(start_time + TIME_SHIFT) , float(end_time + TIME_SHIFT) , location, int(day) , int(month) , int(year))
-        update.message.reply_text('{}   {}   {}-{}'.format(date , location , start_time ,end_time))
+        
+        # Friendly Header
+        header = f"📅 <b>{date}</b>\n📍 <b>{location_name}</b>\n⏰ <b>{start_time}:00 - {end_time}:00</b>"
+        update.message.reply_text(header, parse_mode=ParseMode.HTML)
         
         if not available_rooms:
              update.message.reply_text(texts[lang]["texts"]["no_rooms"])
