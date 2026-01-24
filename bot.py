@@ -296,68 +296,75 @@ def set_time(update: Update , context: CallbackContext):
 #     return SET_DAY
 
 
-
-def set_campus_selection_state(update: Update , context: CallbackContext) -> int:
-    """
-    Handler per la prima fase: utente sceglie il campus (lista top-level).
-    Se l'utente clicca direttamente una sotto-sede la scelta viene accettata.
-    """
+def set_campus_selection_state(update: Update, context: CallbackContext) -> int:
     user = update.message.from_user
     message = update.message.text
     lang = user_data_handler.get_lang(context)
-    logging.info("%d : %s in set campus selection" ,user.id , user.username)
+    logging.info("%d : %s in set campus selection", user.id, user.username)
 
-    # se ha selezionato un campus (chiave top-level)
+    # selezionato un campus (chiave top-level)
     if message in location_dict:
-        # mostra le sotto-sedi di quel campus
-        update.message.reply_text(texts[lang]["texts"]['location'], reply_markup=ReplyKeyboardMarkup(KEYBOARDS.location_keyboard(lang, campus=message), one_time_keyboard=True))
-        # memorizza il campus temporaneamente se necessario
         context.user_data["selected_campus_for_sedi"] = message
+        update.message.reply_text(
+            texts[lang]["texts"]["location"],
+            reply_markup=ReplyKeyboardMarkup(KEYBOARDS.location_keyboard(lang, campus=message), one_time_keyboard=True)
+        )
         return SET_SUBLOCATION
 
-    # se ha selezionato direttamente una sede (cerca in tutte le sedi)
+    # selezionata direttamente una sede (cerca in tutte le sedi)
     for campus, data in location_dict.items():
         sedi = data.get("sedi", {}) if isinstance(data, dict) else {}
         if message in sedi:
             context.user_data["location"] = message
-            update.message.reply_text(texts[lang]["texts"]['day'], reply_markup=ReplyKeyboardMarkup(KEYBOARDS.day_keyboard(lang) , one_time_keyboard=True))
+            update.message.reply_text(texts[lang]["texts"]['day'],
+                                      reply_markup=ReplyKeyboardMarkup(KEYBOARDS.day_keyboard(lang), one_time_keyboard=True))
             return SET_DAY
 
-    # input non valido
-    errorhandler.bonk(update , texts , lang)
+    errorhandler.bonk(update, texts, lang)
     return SET_CAMPUS_SELECTION
 
 
-def set_sublocation_state(update: Update , context: CallbackContext) -> int:
-    """
-    Handler per la seconda fase: utente sceglie la sotto-sede o torna indietro.
-    """
+def set_sublocation_state(update: Update, context: CallbackContext) -> int:
     user = update.message.from_user
     message = update.message.text
     lang = user_data_handler.get_lang(context)
-    logging.info("%d : %s in set sublocation" ,user.id , user.username)
+    logging.info("%d : %s in set sublocation", user.id, user.username)
 
-    # label 'Indietro' / 'Back' in base alla lingua
-    back_label = "Indietro" if lang == "it" else "Back"
+    cancel_label = texts[lang]["keyboards"]["cancel"]
+    all_label = texts[lang]["keyboards"]["all_buildings"]
 
-    # pulsante Indietro -> torna alla lista dei campus
-    if message == back_label:
-        update.message.reply_text(texts[lang]["texts"]['location'] , reply_markup=ReplyKeyboardMarkup(KEYBOARDS.location_keyboard(lang),one_time_keyboard=True))
+    # Indietro / annulla -> torna alla lista campus
+    if message == cancel_label:
+        update.message.reply_text(
+            texts[lang]["texts"]['location'],
+            reply_markup=ReplyKeyboardMarkup(KEYBOARDS.location_keyboard(lang), one_time_keyboard=True)
+        )
         return SET_CAMPUS_SELECTION
 
-    # verifica che la sede sia valida
+    # "Tutti gli edifici" -> seleziona l'intero campus
+    if message == all_label:
+        campus = context.user_data.get("selected_campus_for_sedi")
+        if campus and campus in location_dict:
+            context.user_data["location"] = campus
+            update.message.reply_text(texts[lang]["texts"]['day'],
+                                      reply_markup=ReplyKeyboardMarkup(KEYBOARDS.day_keyboard(lang), one_time_keyboard=True))
+            return SET_DAY
+        # se manca il campus salvato, torna all'elenco campus
+        update.message.reply_text(texts[lang]["texts"]['location'],
+                                  reply_markup=ReplyKeyboardMarkup(KEYBOARDS.location_keyboard(lang), one_time_keyboard=True))
+        return SET_CAMPUS_SELECTION
+
+    # scelta di una singola sede
     for campus, data in location_dict.items():
         sedi = data.get("sedi", {}) if isinstance(data, dict) else {}
         if message in sedi:
             context.user_data["location"] = message
-            update.message.reply_text(texts[lang]["texts"]['day'], reply_markup=ReplyKeyboardMarkup(KEYBOARDS.day_keyboard(lang) , one_time_keyboard=True))
+            update.message.reply_text(texts[lang]["texts"]['day'],
+                                      reply_markup=ReplyKeyboardMarkup(KEYBOARDS.day_keyboard(lang), one_time_keyboard=True))
             return SET_DAY
 
-    # input non valido
-    errorhandler.bonk(update , texts , lang)
+    errorhandler.bonk(update, texts, lang)
     return SET_SUBLOCATION
-
-
 def set_day_state(update: Update , context: CallbackContext) ->int:
     """
     In this state is saved in the user_data the chosen day for the search process,

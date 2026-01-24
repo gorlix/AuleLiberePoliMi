@@ -30,6 +30,7 @@
         "time": "Search Duration",
         "cancel": "❌Back",
         "today": "Today",
-        "tomorrow": "Tomorrow"
+        "tomorrow": "Tomorrow",
+        "all_buildings": "All Buildings"
     }
 }
