@@ -18,7 +18,8 @@
         "missing": "The campus preference is missing!\nTo use this command set the campus preference",
         "exception": "An exception occurred during the search process☹️\nTry again later or contact <a href='https://github.com/gorlix'>Alessandro Gorla</a> for further info",
         "until": "free until",
-        "loading": "Loading..."
+        "loading": "Loading...",
+        "no_rooms": "No free rooms found for the selected criteria (or campus closed)."
     },
     "keyboards": {
         "search": "🔍Search",
