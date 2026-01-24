@@ -31,10 +31,6 @@ if not os.path.exists(LOGPATH):
 """
 Basic logger config
 """
-
-"""
-Basic logger config
-"""
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -43,9 +39,6 @@ logging.basicConfig(
         logging.StreamHandler(sys.stdout)
     ]
 )
-
-# Silence apscheduler logs
-logging.getLogger('apscheduler').setLevel(logging.WARNING)
 
 dotenv_path = join(DIRPATH, '.env')
 load_dotenv(dotenv_path)
@@ -369,13 +362,9 @@ def end_state(update: Update , context: CallbackContext) ->int:
         update.message.reply_text(texts[lang]["texts"]["loading"])
         available_rooms = find_free_room(float(start_time + TIME_SHIFT) , float(end_time + TIME_SHIFT) , location_dict[location],int(day) , int(month) , int(year))  
         update.message.reply_text('{}   {}   {}-{}'.format(date , location , start_time ,end_time))
-        
-        if not available_rooms:
-            update.message.reply_text(texts[lang]["texts"]["no_rooms"])
-        else:
-            for m in string_builder.room_builder_str(available_rooms , texts[lang]["texts"]["until"]):
-                update.message.reply_chat_action(telegram.ChatAction.TYPING)
-                update.message.reply_text(m,parse_mode=ParseMode.HTML , reply_markup=ReplyKeyboardMarkup(initial_keyboard))
+        for m in string_builder.room_builder_str(available_rooms , texts[lang]["texts"]["until"]):
+            update.message.reply_chat_action(telegram.ChatAction.TYPING)
+            update.message.reply_text(m,parse_mode=ParseMode.HTML , reply_markup=ReplyKeyboardMarkup(initial_keyboard))
         
         logging.info("%d : %s search was: %s %s %d %d" , user.id , user.username , location , date , start_time , end_time )
     except Exception as e:
@@ -469,7 +458,6 @@ def main():
     
     # Heartbeat job
     def heartbeat(context: CallbackContext):
-        logging.info("Heartbeat")
         with open("heartbeat", "w") as f:
             f.write(str(time.time()))
     
