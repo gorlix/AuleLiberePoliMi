@@ -18,8 +18,7 @@
         "missing": "Non hai ancora indicato il tuo campus preferito!\nPer usare questa funzione devi prima impostare le tue preferenze",
         "exception": "C'è stato un problema durante la ricerca☹️\nRitenta più tardi o contattami <a href='https://github.com/gorlix'>Alessandro Gorla</a> per ulteriori informazioni",
         "until": "fino alle",
-        "loading": "Caricamento in corso...",
-        "no_rooms": "Nessuna aula libera trovata per i criteri selezionati (o campus chiuso)."
+        "loading": "Caricamento in corso..."
     },
     "keyboards": {
         "search": "🔍Cerca",
