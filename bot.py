@@ -17,7 +17,7 @@ from telegram import ParseMode
 from functions import errorhandler , string_builder , input_check , keyboard_builder , user_data_handler ,regex_builder
 
 
-LOGPATH = "log/"http://telegram.org/privacy-tpa
+LOGPATH = "log/"
 DIRPATH = dirname(__file__)
 
 
@@ -359,6 +359,7 @@ def end_state(update: Update , context: CallbackContext) ->int:
     
     day , month , year = date.split('/')
     try:
+        update.message.reply_text(texts[lang]["texts"]["loading"])
         available_rooms = find_free_room(float(start_time + TIME_SHIFT) , float(end_time + TIME_SHIFT) , location_dict[location],int(day) , int(month) , int(year))  
         update.message.reply_text('{}   {}   {}-{}'.format(date , location , start_time ,end_time))
         for m in string_builder.room_builder_str(available_rooms , texts[lang]["texts"]["until"]):
