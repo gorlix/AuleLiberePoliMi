@@ -47,7 +47,11 @@ def find_classrooms(location , day , month , year):
         return {}
     
     soup = BeautifulSoup(r.text, 'html.parser')
+    soup = BeautifulSoup(r.text, 'html.parser')
     tableContainer = soup.find("div", {"id": "tableContainer"})
+    if not tableContainer:
+         print(f"Error: Table container not found. Response content length: {len(r.text)}")
+         return {}
     tableRows = tableContainer.find_all('tr')[3:] #remove first three headers
 
     with open("json/roomsWithPower.json","r") as j:

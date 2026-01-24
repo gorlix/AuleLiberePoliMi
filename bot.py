@@ -345,7 +345,8 @@ def set_sublocation_state(update: Update, context: CallbackContext) -> int:
     if message == all_label:
         campus = context.user_data.get("selected_campus_for_sedi")
         if campus and campus in location_dict:
-            context.user_data["location"] = campus
+            # Save the CAMPUS CODE (e.g. MIA)
+            context.user_data["location"] = location_dict[campus]["code"]
             update.message.reply_text(texts[lang]["texts"]['day'],
                                       reply_markup=ReplyKeyboardMarkup(KEYBOARDS.day_keyboard(lang), one_time_keyboard=True))
             return SET_DAY
@@ -355,13 +356,17 @@ def set_sublocation_state(update: Update, context: CallbackContext) -> int:
         return SET_CAMPUS_SELECTION
 
     # scelta di una singola sede
-    for campus, data in location_dict.items():
-        sedi = data.get("sedi", {}) if isinstance(data, dict) else {}
-        if message in sedi:
-            context.user_data["location"] = message
-            update.message.reply_text(texts[lang]["texts"]['day'],
-                                      reply_markup=ReplyKeyboardMarkup(KEYBOARDS.day_keyboard(lang), one_time_keyboard=True))
-            return SET_DAY
+    # We need to find which campus contains this sede
+    selected_campus = context.user_data.get("selected_campus_for_sedi")
+    if selected_campus and selected_campus in location_dict:
+         data = location_dict[selected_campus]
+         sedi = data.get("sedi", {}) if isinstance(data, dict) else {}
+         if message in sedi:
+             # Save the SEDE CODE (e.g. MIA02)
+             context.user_data["location"] = sedi[message]
+             update.message.reply_text(texts[lang]["texts"]['day'],
+                                       reply_markup=ReplyKeyboardMarkup(KEYBOARDS.day_keyboard(lang), one_time_keyboard=True))
+             return SET_DAY
 
     errorhandler.bonk(update, texts, lang)
     return SET_SUBLOCATION
@@ -433,15 +438,21 @@ def end_state(update: Update , context: CallbackContext) ->int:
     day , month , year = date.split('/')
     try:
         update.message.reply_text(texts[lang]["texts"]["loading"])
-        available_rooms = find_free_room(float(start_time + TIME_SHIFT) , float(end_time + TIME_SHIFT) , location_dict[location],int(day) , int(month) , int(year))
+        # Pass location code directly
+        available_rooms = find_free_room(float(start_time + TIME_SHIFT) , float(end_time + TIME_SHIFT) , location, int(day) , int(month) , int(year))
         update.message.reply_text('{}   {}   {}-{}'.format(date , location , start_time ,end_time))
-        for m in string_builder.room_builder_str(available_rooms , texts[lang]["texts"]["until"]):
-            update.message.reply_chat_action(telegram.ChatAction.TYPING)
-            update.message.reply_text(m,parse_mode=ParseMode.HTML , reply_markup=ReplyKeyboardMarkup(initial_keyboard))
+        
+        if not available_rooms:
+             update.message.reply_text(texts[lang]["texts"]["no_rooms"])
+        else:
+            for m in string_builder.room_builder_str(available_rooms , texts[lang]["texts"]["until"]):
+                update.message.reply_chat_action(telegram.ChatAction.TYPING)
+                update.message.reply_text(m,parse_mode=ParseMode.HTML , reply_markup=ReplyKeyboardMarkup(initial_keyboard))
 
         logging.info("%d : %s search was: %s %s %d %d" , user.id , user.username , location , date , start_time , end_time )
     except Exception as e:
-        logging.info("Exception occurred during find_free_room, search was: %s  %s  %d-%d " , date , location , start_time , end_time)
+        logging.error("Exception occurred during find_free_room: %s", e)
+        logging.info("Search context: %s  %s  %d-%d " , date , location , start_time , end_time)
         update.message.reply_text(texts[lang]["texts"]["exception"] ,parse_mode=ParseMode.HTML , reply_markup=ReplyKeyboardMarkup(initial_keyboard) ,disable_web_page_preview=True)
 
 

@@ -7,6 +7,9 @@ def room_builder_str(available_rooms , until):
     and parse the list into a list of multiple string in order to not exceed the telegram
     len limit
     """
+    if not available_rooms:
+        return []
+    
     splitted_msg = []
     available_rooms_str = ""
     for building in available_rooms:
@@ -17,6 +20,8 @@ def room_builder_str(available_rooms , until):
         for room in available_rooms[building]:
             emoji = "🔌" if room['powerPlugs'] else ''
             available_rooms_str += ' <a href ="{}">{:^10}</a> ({} {}) {}\n'.format(room['link'], room['name'], until , room['until'],emoji)
-
-    splitted_msg.append(available_rooms_str)
+    
+    if available_rooms_str:
+        splitted_msg.append(available_rooms_str)
+        
     return splitted_msg
