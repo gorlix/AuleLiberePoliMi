@@ -1,8 +1,7 @@
-import time
+from logging import root
 import requests
 from bs4 import BeautifulSoup
 import json
-from logging import root
 
 URL = "https://onlineservices.polimi.it/spazi/spazi/controller/OccupazioniGiornoEsatto.do"
 BASE_URL = "https://onlineservices.polimi.it/spazi/spazi/controller/"
@@ -12,8 +11,6 @@ LECTURE = 'slot'
 TIME_SHIFT = 0.25
 MIN_TIME = 8
 MAX_TIME = 20
-CACHE_TTL = 1800 # 30 minutes in seconds
-CACHE = {}
 
 GARBAGE = ["PROVA_ASICT" , "2.2.1-D.I."]
 
@@ -37,33 +34,13 @@ build a dict with the classes information stored on the html table (the code may
 """
 
 def find_classrooms(location , day , month , year):
-    
-    # Cache check
-    cache_key = (location, day, month, year)
-    if cache_key in CACHE:
-        if time.time() - CACHE[cache_key]['timestamp'] < CACHE_TTL:
-            print(f"CACHE HIT for {cache_key}")
-            return CACHE[cache_key]['data']
-        else:
-            print(f"CACHE EXPIRED for {cache_key}")
-            del CACHE[cache_key]
-    else:
-        print(f"CACHE MISS for {cache_key}")
-
     info = {} 
     buildingName = '-' #defaul value for building
     info[buildingName] = {} #first initialization due to table format
 
     params = {'csic': location , 'categoria' : 'tutte', 'tipologia' : 'tutte', 'giorno_day' : day , 'giorno_month' : month, 'giorno_year' : year , 'jaf_giorno_date_format' : 'dd%2FMM%2Fyyyy'  , 'evn_visualizza' : ''}
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
-    try:
-        t_net_start = time.time()
-        r = requests.get(URL , params= params, headers=headers) 
-        t_net_end = time.time()
-        print(f"Network request took: {t_net_end - t_net_start:.2f}s")
-    except requests.exceptions.RequestException as e:
-        print(f"Error: Network request failed: {e}")
-        return {}
+    r = requests.get(URL , params= params, headers=headers)
     
     if r.status_code != 200:
         print(f"Error: Failed to fetch data. Status code: {r.status_code}")
@@ -90,7 +67,7 @@ def find_classrooms(location , day , month , year):
                     info[buildingName] = {}
         else:
             room = ''
-            time_slot = 7.75
+            time = 7.75
             for td in tds:
                 if ROOM in td.attrs['class']:
                     room = td.find('a').string.replace(" ","")
@@ -108,22 +85,13 @@ def find_classrooms(location , day , month , year):
                     lesson_name = td.find('a').string
                     lesson = {}
                     lesson['name'] = lesson_name
-                    lesson['from'] = time_slot
-                    time_slot += duration/4
-                    lesson['to'] = time_slot
+                    lesson['from'] = time
+                    time += duration/4
+                    lesson['to'] = time
                     info[buildingName][room]['lessons'].append(lesson)
                 else:
-                    time_slot += TIME_SHIFT
-    
-    data = clean_data(info)
-    
-    # Cache store
-    CACHE[cache_key] = {
-        'timestamp': time.time(),
-        'data': data
-    }
-    
-    return data
+                    time += TIME_SHIFT
+    return clean_data(info)
 
 
 
