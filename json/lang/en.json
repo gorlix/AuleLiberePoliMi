@@ -29,8 +29,9 @@
         "language": "Language",
         "campus": "Preferred Campus",
         "time": "Search Duration",
-        "cancel": "/Back",
+        "cancel": "❌Back",
         "today": "Today",
-        "tomorrow": "Tomorrow"
+        "tomorrow": "Tomorrow",
+        "all_buildings": "All Buildings"
     }
 }
