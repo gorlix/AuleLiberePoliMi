@@ -513,15 +513,15 @@ def main():
         entry_points=[CommandHandler('start',start)],
         states={
             INITIAL_STATE : [MessageHandler(Filters.regex(regex.initial_state()),initial_state)],
-            SET_CAMPUS_SELECTION : [MessageHandler(Filters.text & ~Filters.command,set_campus_selection_state)],
-            SET_SUBLOCATION : [MessageHandler(Filters.text & ~Filters.command,set_sublocation_state)],
+            SET_CAMPUS_SELECTION : [MessageHandler(Filters.text & ~Filters.command & ~Filters.regex(regex.cancel_command()),set_campus_selection_state)],
+            SET_SUBLOCATION : [MessageHandler(Filters.text & ~Filters.command & ~Filters.regex(regex.cancel_command()),set_sublocation_state)],
             SET_DAY : [MessageHandler(Filters.regex(regex.date_regex()) | Filters.regex(regex.date_string_regex()), set_day_state )],
-            SET_START_TIME : [MessageHandler(Filters.text & ~Filters.command,set_start_time_state)],
-            SET_END_AND_SEND : [MessageHandler(Filters.text & ~Filters.command, end_state)],
+            SET_START_TIME : [MessageHandler(Filters.text & ~Filters.command & ~Filters.regex(regex.cancel_command()),set_start_time_state)],
+            SET_END_AND_SEND : [MessageHandler(Filters.text & ~Filters.command & ~Filters.regex(regex.cancel_command()), end_state)],
             SETTINGS : [MessageHandler(Filters.regex(regex.settings_regex()) , settings)],
-            SET_LANG : [MessageHandler(Filters.text & ~Filters.command , set_language)],
-            SET_CAMPUS: [MessageHandler(Filters.text & ~Filters.command , set_campus)],
-            SET_TIME: [MessageHandler(Filters.text & ~Filters.command , set_time)]
+            SET_LANG : [MessageHandler(Filters.text & ~Filters.command & ~Filters.regex(regex.cancel_command()) , set_language)],
+            SET_CAMPUS: [MessageHandler(Filters.text & ~Filters.command & ~Filters.regex(regex.cancel_command()) , set_campus)],
+            SET_TIME: [MessageHandler(Filters.text & ~Filters.command & ~Filters.regex(regex.cancel_command()) , set_time)]
             },
         fallbacks=[CommandHandler('terminate' , terminate)  , MessageHandler(Filters.regex(regex.info_regex()) , info), MessageHandler(Filters.regex(regex.cancel_command()), cancel)],
 
