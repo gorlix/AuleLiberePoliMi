@@ -1,6 +1,6 @@
 # Aule Libere PoliMi Bot
 
-[![Start Bot](https://img.shields.io/badge/Telegram-Start_Bot-blue?style=for-the-badge&logo=telegram)](https://t.me/auleliberepolimi_bot)
+[![Start Bot](https://img.shields.io/badge/Telegram-Start_Bot-blue?style=for-the-badge&logo=telegram)](https://t.me/polimiAuleLibereBot)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue?style=for-the-badge&logo=python)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)
 ![License](https://img.shields.io/badge/License-GPLv3-green?style=for-the-badge)
@@ -14,7 +14,7 @@ Since the official PoliMi website no longer allows easy searching for free space
 
 Ready to find a classroom? Start chatting with the bot now!
 
-[**🤖 Start AuleBot**](https://t.me/auleliberepolimi_bot)
+[**🤖 Start AuleBot**](https://t.me/polimiAuleLibereBot)
 
 ---
 
