@@ -39,6 +39,7 @@ logging.basicConfig(
         logging.StreamHandler(sys.stdout)
     ]
 )
+logging.getLogger('apscheduler').setLevel(logging.WARNING)
 
 dotenv_path = join(DIRPATH, '.env')
 load_dotenv(dotenv_path)
@@ -557,6 +558,7 @@ def main():
 
     # Heartbeat job
     def heartbeat(context: CallbackContext):
+        logging.info("heartbeat")
         with open("heartbeat", "w") as f:
             f.write(str(time.time()))
 
