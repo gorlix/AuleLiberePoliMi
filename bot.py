@@ -342,7 +342,13 @@ def set_sublocation_state(update: Update, context: CallbackContext) -> int:
         return SET_CAMPUS_SELECTION
 
     # "Tutti gli edifici" -> seleziona l'intero campus
-    if message == all_label:
+    is_all_buildings = False
+    for l in texts:
+        if message == texts[l]["keyboards"]["all_buildings"]:
+            is_all_buildings = True
+            break
+
+    if is_all_buildings:
         campus = context.user_data.get("selected_campus_for_sedi")
         if campus and campus in location_dict:
             # Save the CAMPUS CODE (e.g. MIA)
