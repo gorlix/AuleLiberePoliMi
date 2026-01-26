@@ -127,7 +127,14 @@ def now(update: Update , context : CallbackContext, lang) -> int:
         start_time = MIN_TIME
     end_time = start_time + dur if start_time + dur < MAX_TIME else MAX_TIME
 
-    context.user_data["location"] = loc
+    if loc in location_dict:
+        context.user_data["location"] = location_dict[loc]["code"]
+        context.user_data["location_name"] = loc
+    else:
+        # Fallback if somehow invalid
+        context.user_data["location"] = loc
+        context.user_data["location_name"] = loc
+
     context.user_data["date"] = datetime.now(pytz.timezone('Europe/Rome')).strftime("%d/%m/%Y")
     context.user_data["start_time"] = start_time
     update.message.text = str(end_time)
@@ -164,12 +171,25 @@ def campus(update: Update , context : CallbackContext, lang) -> int:
     update.message.reply_text(texts[lang]["texts"]["campus"] , reply_markup=ReplyKeyboardMarkup(KEYBOARDS.location_keyboard(lang)))
     return SET_CAMPUS
 
+def set_format(update: Update, context: CallbackContext, lang):
+    """
+    Toggle between text and emoji format
+    """
+    current_mode = user_data_handler.get_format_mode(context)
+    new_mode = 'emoji' if current_mode == 'text' else 'text'
+    
+    user_data_handler.update_format(new_mode, context)
+    
+    msg_key = "format_emoji" if new_mode == 'emoji' else "format_text"
+    update.message.reply_text(texts[lang]["texts"][msg_key], reply_markup=ReplyKeyboardMarkup(KEYBOARDS.preference_keyboard(lang)))
+    return SETTINGS
+
 """
 Code below map in a dict all the aliases for a certain function,
 e.g. map all the aliases of search (search, cerca, ecc) to the search function
 """
 function_map = {}
-function_mapping = {"search" : search , "now" : now , "preferences" : preferences , "language" : language , "time" : duration, "campus" : campus}
+function_mapping = {"search" : search , "now" : now , "preferences" : preferences , "language" : language , "time" : duration, "campus" : campus, "format": set_format}
 for key in command_keys:
     if key in function_mapping:
         for alias in command_keys[key]:
@@ -275,6 +295,8 @@ def set_time(update: Update , context: CallbackContext):
     user_data_handler.update_time(message , context)
     update.message.reply_text(texts[lang]["texts"]["success"],reply_markup=ReplyKeyboardMarkup(KEYBOARDS.preference_keyboard(lang)))
     return SETTINGS
+
+
 
 
 # def set_location_state(update: Update , context: CallbackContext) ->int:
@@ -433,6 +455,7 @@ def end_state(update: Update , context: CallbackContext) ->int:
     message = update.message.text
     lang = user_data_handler.get_lang(context)
     initial_keyboard = KEYBOARDS.initial_keyboard(lang)
+    format_mode = user_data_handler.get_format_mode(context)
 
     start_time = context.user_data['start_time']
     date = context.user_data['date']
@@ -460,7 +483,7 @@ def end_state(update: Update , context: CallbackContext) ->int:
         if not available_rooms:
              update.message.reply_text(texts[lang]["texts"]["no_rooms"])
         else:
-            for m in string_builder.room_builder_str(available_rooms , texts[lang]["texts"]["until"]):
+            for m in string_builder.room_builder_str(available_rooms , texts[lang]["texts"], format_mode):
                 update.message.reply_chat_action(telegram.ChatAction.TYPING)
                 update.message.reply_text(m,parse_mode=ParseMode.HTML , reply_markup=ReplyKeyboardMarkup(initial_keyboard))
 

@@ -49,7 +49,7 @@ class KeyboadBuilder:
         return [[self.texts[lang]["keyboards"]["cancel"]]] + [[x] for x in range(start_time + 1 , MAX_TIME + 1)]
 
     def preference_keyboard(self,lang):
-        return [[self.texts[lang]["keyboards"]["cancel"]] , [self.texts[lang]["keyboards"]["language"]] , [self.texts[lang]["keyboards"]["campus"]] , [self.texts[lang]["keyboards"]["time"]]]
+        return [[self.texts[lang]["keyboards"]["cancel"]] , [self.texts[lang]["keyboards"]["language"]] , [self.texts[lang]["keyboards"]["campus"]] , [self.texts[lang]["keyboards"]["time"]], [self.texts[lang]["keyboards"]["format"]]]
 
     def language_keyboard(self,lang):
         return [[self.texts[lang]["keyboards"]["cancel"]]] +[[l] for l in self.texts]

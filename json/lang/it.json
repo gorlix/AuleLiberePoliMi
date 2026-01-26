@@ -19,7 +19,9 @@
         "exception": "Ops! Si è verificato un problema durante la ricerca ☹️\nRitenta più tardi o contatta <a href='https://github.com/gorlix'>Alessandro Gorla</a> per info. 🆘",
         "until": "fino alle",
         "loading": "Caricamento in corso... ⏳",
-        "no_rooms": "Nessuna aula libera trovata per i criteri selezionati (o campus chiuso). 😔"
+        "no_rooms": "Nessuna aula libera trovata per i criteri selezionati (o campus chiuso). 😔",
+        "format_emoji": "Passato alla modalità Emoji! ⚡\nLegenda:\n🕒 = Libera fino alle\n🔌 = Presa elettrica",
+        "format_text": "Passato alla modalità Testo! 📝"
     },
     "keyboards": {
         "search": "🔍Cerca",
@@ -32,6 +34,7 @@
         "cancel": "❌Indietro",
         "today": "Oggi",
         "tomorrow": "Domani",
-        "all_buildings": "Tutti gli edifici"
+        "all_buildings": "Tutti gli edifici",
+        "format": "📝/⚡ Formato"
     }
 }

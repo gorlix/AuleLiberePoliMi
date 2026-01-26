@@ -1,7 +1,8 @@
 from telegram.constants import MAX_MESSAGE_LENGTH
+from functions import formatter
 
 
-def room_builder_str(available_rooms , until):
+def room_builder_str(available_rooms, texts, format_mode='text'):
     """
     this function take as input the list af all tha available classtooms
     and parse the list into a list of multiple string in order to not exceed the telegram
@@ -18,8 +19,7 @@ def room_builder_str(available_rooms , until):
             available_rooms_str = ""
         available_rooms_str += '\n<b>{}</b>\n'.format(building)
         for room in available_rooms[building]:
-            emoji = "🔌" if room['powerPlugs'] else ''
-            available_rooms_str += ' <a href ="{}">{:^10}</a> ({} {}) {}\n'.format(room['link'], room['name'], until , room['until'],emoji)
+            available_rooms_str += formatter.format_room(room, room['until'], format_mode, texts)
     
     if available_rooms_str:
         splitted_msg.append(available_rooms_str)
