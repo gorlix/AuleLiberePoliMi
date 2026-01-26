@@ -23,6 +23,7 @@ def initialize_user_data(context: CallbackContext):
         context.user_data['preference'] = {} # set the default language
         context.user_data['preference']['lang'] = lang
         context.user_data['preference']['time'] = 2
+        context.user_data['preference']['format'] = 'text'
 
     return get_lang(context)
 
@@ -64,6 +65,23 @@ def update_time(time , context:CallbackContext):
     if  "preference" not in context.user_data:
         reset_user_data(context)
     context.user_data['preference']['time'] = int(time)
+
+def update_format(mode , context:CallbackContext):
+    """
+    update the format preference
+    """
+    if  "preference" not in context.user_data:
+        reset_user_data(context)
+    context.user_data['preference']['format'] = mode
+
+def get_format_mode(context:CallbackContext):
+    """
+    return the format preference
+    """
+    try:
+        return context.user_data["preference"]["format"]
+    except Exception:
+        return 'text'
 
 def get_user_preferences(context:CallbackContext):
     """

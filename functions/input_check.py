@@ -20,12 +20,28 @@ def day_check(message:str , texts , lang) -> bool:
     """
     return_date = message
     current_date = datetime.now(pytz.timezone('Europe/Rome')).date()
-    if message != texts[lang]["keyboards"]["today"] and message != texts[lang]["keyboards"]["tomorrow"]:
-        chosen_date = datetime.strptime(message, '%d/%m/%Y').date()
-        if chosen_date < current_date or chosen_date > (current_date + timedelta(days=6)):
-            return False , return_date
+    
+    # Check if message matches "Today" or "Tomorrow" in ANY language
+    is_today = False
+    is_tomorrow = False
+    
+    for l in texts:
+        if message == texts[l]["keyboards"]["today"]:
+            is_today = True
+            break
+        if message == texts[l]["keyboards"]["tomorrow"]:
+            is_tomorrow = True
+            break
+            
+    if not is_today and not is_tomorrow:
+        try:
+            chosen_date = datetime.strptime(message, '%d/%m/%Y').date()
+            if chosen_date < current_date or chosen_date > (current_date + timedelta(days=6)):
+                return False , return_date
+        except ValueError:
+             return False, return_date
     else:
-        return_date = current_date.strftime("%d/%m/%Y") if message == texts[lang]["keyboards"]["today"] else (current_date + timedelta(days=1)).strftime("%d/%m/%Y")
+        return_date = current_date.strftime("%d/%m/%Y") if is_today else (current_date + timedelta(days=1)).strftime("%d/%m/%Y")
         
     return True , return_date
 

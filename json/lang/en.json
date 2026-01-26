@@ -19,7 +19,9 @@
         "exception": "Oops! An error occurred during the search ☹️\nPlease try again later or contact <a href='https://github.com/gorlix'>Alessandro Gorla</a> for info. 🆘",
         "until": "free until",
         "loading": "Loading data... ⏳",
-        "no_rooms": "No free rooms found for the selected criteria (or campus closed). 😔"
+        "no_rooms": "No free rooms found for the selected criteria (or campus closed). 😔",
+        "format_emoji": "Switched to Emoji Mode! ⚡\nLegend:\n🕒 = Free until\n🔌 = Power socket",
+        "format_text": "Switched to Text Mode! 📝"
     },
     "keyboards": {
         "search": "🔍Search",
@@ -29,8 +31,10 @@
         "language": "Language",
         "campus": "Preferred Campus",
         "time": "Search Duration",
-        "cancel": "/Back",
+        "cancel": "❌Back",
         "today": "Today",
-        "tomorrow": "Tomorrow"
+        "tomorrow": "Tomorrow",
+        "all_buildings": "All Buildings",
+        "format": "📝/⚡ Format"
     }
 }

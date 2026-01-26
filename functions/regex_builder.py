@@ -45,7 +45,7 @@ class RegexBuilder():
     def settings_regex(self):
         or_chain = ''
         for lang in self.texts:
-            or_chain += '({})|({})|({})|'.format(self.texts[lang]["keyboards"]["campus"] , self.texts[lang]["keyboards"]["language"],self.texts[lang]["keyboards"]["time"])
+            or_chain += '({})|({})|({})|({})|'.format(self.texts[lang]["keyboards"]["campus"] , self.texts[lang]["keyboards"]["language"],self.texts[lang]["keyboards"]["time"], self.texts[lang]["keyboards"]["format"])
         or_chain = or_chain[:-1] # remove the last pipe
         return self.regex.format(or_chain)
 

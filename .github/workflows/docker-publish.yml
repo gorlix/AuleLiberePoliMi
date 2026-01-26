@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "main"
+      - "Keyboard_test"
 
 env:
   REGISTRY: ghcr.io

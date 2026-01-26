@@ -1,7 +1,12 @@
 from logging import root
 import requests
+import requests_cache
+import time as time_module
+import logging
 from bs4 import BeautifulSoup
 import json
+
+requests_cache.install_cache('polimi_cache', expire_after=3600)
 
 URL = "https://onlineservices.polimi.it/spazi/spazi/controller/OccupazioniGiornoEsatto.do"
 BASE_URL = "https://onlineservices.polimi.it/spazi/spazi/controller/"
@@ -40,14 +45,24 @@ def find_classrooms(location , day , month , year):
 
     params = {'csic': location , 'categoria' : 'tutte', 'tipologia' : 'tutte', 'giorno_day' : day , 'giorno_month' : month, 'giorno_year' : year , 'jaf_giorno_date_format' : 'dd%2FMM%2Fyyyy'  , 'evn_visualizza' : ''}
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+    
+    start_time = time_module.time()
     r = requests.get(URL , params= params, headers=headers)
+    elapsed_time = time_module.time() - start_time
+    
+    cache_status = "HIT" if getattr(r, 'from_cache', False) else "MISS"
+    logging.info(f"PoliMi Request: {elapsed_time:.2f}s | Cache: {cache_status}")
     
     if r.status_code != 200:
         print(f"Error: Failed to fetch data. Status code: {r.status_code}")
         return {}
     
     soup = BeautifulSoup(r.text, 'html.parser')
+    soup = BeautifulSoup(r.text, 'html.parser')
     tableContainer = soup.find("div", {"id": "tableContainer"})
+    if not tableContainer:
+         print(f"Error: Table container not found. Response content length: {len(r.text)}")
+         return {}
     tableRows = tableContainer.find_all('tr')[3:] #remove first three headers
 
     with open("json/roomsWithPower.json","r") as j:
