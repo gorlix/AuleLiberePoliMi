@@ -23,13 +23,13 @@ DIRPATH = dirname(__file__)
 
 
 """
-Create a dir for the logs file
+Create a directory for log files if it doesn't exist.
 """
 if not os.path.exists(LOGPATH):
     os.mkdir(LOGPATH)
 
 """
-Basic logger config
+Configure the basic logging settings.
 """
 logging.basicConfig(
     level=logging.INFO,
@@ -48,14 +48,14 @@ load_dotenv(dotenv_path)
 
 
 """
-Code below load all the query params for the campus in a dict
+Load all campus location query parameters into a dictionary.
 """
 location_dict = {}
 with open(join(DIRPATH, 'json/location.json')) as location_json:
     location_dict = json.load(location_json)
 
 """
-Code below load in a dict all the text messages in all the available languages
+Load all text messages for available languages into a dictionary.
 """
 texts = {}
 for lang in os.listdir(join(DIRPATH , 'json/lang')):
@@ -63,8 +63,7 @@ for lang in os.listdir(join(DIRPATH , 'json/lang')):
         texts[lang[:2]] = json.load(f)
 
 """
-The fragment of code below load in a dict all the aliases for the various commands
-eg for search: Search, Cerca ecc
+Map command aliases (e.g., Search, Cerca) to their canonical keys.
 """
 command_keys = {}
 for lang in texts:
@@ -79,7 +78,7 @@ TOKEN = os.environ.get("TOKEN")
 
 
 """
-States for the conversation handler (two-step location selection)
+States for the conversation handler.
 """
 INITIAL_STATE = 0
 SET_CAMPUS_SELECTION = 1   # prima scelta: elenco campus
@@ -96,22 +95,38 @@ NOW = 10
 
 
 """
-The Functions below are used for the various commands in the states, first three functions are
-referred to the initial state, second three are referred to the settings state
+Handler functions for conversation states.
+The first group corresponds to the initial state, while the second group handles settings.
 """
 
 def search(update: Update , context : CallbackContext , lang) -> int:
-    """
-    Avvia la ricerca: mostra la lista dei campus (prima fase)
+    """Initiates the search process by showing the list of campuses.
+
+    Args:
+        update (Update): The Telegram update object.
+        context (CallbackContext): The callback context.
+        lang (str): The language code.
+
+    Returns:
+        int: The next state (SET_CAMPUS_SELECTION).
     """
     update.message.reply_text(texts[lang]["texts"]['location'] , reply_markup=ReplyKeyboardMarkup(KEYBOARDS.location_keyboard(lang),one_time_keyboard=True))
     return SET_CAMPUS_SELECTION
 
 
 def now(update: Update , context : CallbackContext, lang) -> int:
-    """
-    Thhis functions implements the quick search, after checking if the campus is in
-    the preferences of the user call the end_state function, otherwise return to the initial_state
+    """Performs a quick search based on user preferences.
+
+    If preferences are set, proceeds to the end state. Otherwise, prompts the user
+    to set preferences.
+
+    Args:
+        update (Update): The Telegram update object.
+        context (CallbackContext): The callback context.
+        lang (str): The language code.
+
+    Returns:
+        int: The next state (END_STATE or INITIAL_STATE).
     """
     user = update.message.from_user
     logging.info("%d : %s in now state" , user.id ,  user.username)
@@ -142,38 +157,73 @@ def now(update: Update , context : CallbackContext, lang) -> int:
 
 
 def preferences(update: Update , context : CallbackContext, lang) -> int:
-    """
-    Send the keyboard for the preferences state and return to setting state
+    """Displays the preferences menu.
+
+    Args:
+        update (Update): The Telegram update object.
+        context (CallbackContext): The callback context.
+        lang (str): The language code.
+
+    Returns:
+        int: The next state (SETTINGS).
     """
     update.message.reply_text(texts[lang]["texts"]["settings"],reply_markup=ReplyKeyboardMarkup(KEYBOARDS.preference_keyboard(lang)))
     return SETTINGS
 
 def language(update: Update , context : CallbackContext, lang) -> int:
-    """
-    Send the keyboard for the languages and return to set_lang state
+    """Displays the language selection menu.
+
+    Args:
+        update (Update): The Telegram update object.
+        context (CallbackContext): The callback context.
+        lang (str): The language code.
+
+    Returns:
+        int: The next state (SET_LANG).
     """
     update.message.reply_text(texts[lang]["texts"]["language"] , reply_markup=ReplyKeyboardMarkup(KEYBOARDS.language_keyboard(lang)))
     return SET_LANG
 
 
 def duration(update: Update , context : CallbackContext, lang) -> int:
-    """
-    Send the keyboard for the duration and return to set_time state
+    """Displays the duration selection menu for quick search.
+
+    Args:
+        update (Update): The Telegram update object.
+        context (CallbackContext): The callback context.
+        lang (str): The language code.
+
+    Returns:
+        int: The next state (SET_TIME).
     """
     update.message.reply_text(texts[lang]["texts"]["time"] , reply_markup=ReplyKeyboardMarkup(KEYBOARDS.time_keyboard(lang)))
     return SET_TIME
 
 
 def campus(update: Update , context : CallbackContext, lang) -> int:
-    """
-    Send the keyboard for the campus and return to set_campus state
+    """Displays the campus selection menu for preferences.
+
+    Args:
+        update (Update): The Telegram update object.
+        context (CallbackContext): The callback context.
+        lang (str): The language code.
+
+    Returns:
+        int: The next state (SET_CAMPUS).
     """
     update.message.reply_text(texts[lang]["texts"]["campus"] , reply_markup=ReplyKeyboardMarkup(KEYBOARDS.location_keyboard(lang)))
     return SET_CAMPUS
 
 def set_format(update: Update, context: CallbackContext, lang):
-    """
-    Toggle between text and emoji format
+    """Toggles between text and emoji display formats.
+
+    Args:
+        update (Update): The Telegram update object.
+        context (CallbackContext): The callback context.
+        lang (str): The language code.
+
+    Returns:
+        int: The next state (SETTINGS).
     """
     current_mode = user_data_handler.get_format_mode(context)
     new_mode = 'emoji' if current_mode == 'text' else 'text'
@@ -185,8 +235,7 @@ def set_format(update: Update, context: CallbackContext, lang):
     return SETTINGS
 
 """
-Code below map in a dict all the aliases for a certain function,
-e.g. map all the aliases of search (search, cerca, ecc) to the search function
+Map aliased commands (e.g., 'search', 'cerca') to their corresponding functions.
 """
 function_map = {}
 function_mapping = {"search" : search , "now" : now , "preferences" : preferences , "language" : language , "time" : duration, "campus" : campus, "format": set_format}
@@ -198,9 +247,14 @@ for key in command_keys:
 """STATES FUNCTIONS"""
 
 def start(update: Update , context: CallbackContext) ->int:
-    """
-    Start function for the conversation handler, initialize the dict of user_data
-    in the context and return to the initial state
+    """Starts the conversation and initializes user data.
+
+    Args:
+        update (Update): The Telegram update object.
+        context (CallbackContext): The callback context.
+
+    Returns:
+        int: The initial state (INITIAL_STATE).
     """
     lang = user_data_handler.initialize_user_data(context)
     user = update.message.from_user
@@ -213,9 +267,16 @@ def start(update: Update , context: CallbackContext) ->int:
 
 
 def initial_state(update:Update , context: CallbackContext) ->int:
-    """
-    Initial State of the ConversationHandler, through the function_map return to
-    the right function based on the user input
+    """Handles parsing of the initial state input.
+
+    Calls the appropriate function based on the user's text message.
+
+    Args:
+        update (Update): The Telegram update object.
+        context (CallbackContext): The callback context.
+
+    Returns:
+        int: The next state returned by the called function.
     """
     user = update.message.from_user
     message = update.message.text
@@ -227,9 +288,16 @@ def initial_state(update:Update , context: CallbackContext) ->int:
 
 
 def settings(update: Update , context : CallbackContext):
-    """
-    Settings state of the Conversation Handler, from here based on the user input
-    calls the right function using the function_map
+    """Handles parsing of the settings state input.
+
+    Calls the appropriate settings function based on user input.
+
+    Args:
+        update (Update): The Telegram update object.
+        context (CallbackContext): The callback context.
+
+    Returns:
+        int: The next state returned by the called function.
     """
     user = update.message.from_user
     message = update.message.text
@@ -239,10 +307,16 @@ def settings(update: Update , context : CallbackContext):
     return function_map[message](update,context,lang)
 
 def set_language(update: Update , context: CallbackContext):
-    """
-    In this state is stored in the user_data the preference for the language,
-    if the input check goes well it returns to the settings, otherwise remain
-    in the same state
+    """Sets the user's preferred language.
+
+    Validates the input and updates the user data.
+
+    Args:
+        update (Update): The Telegram update object.
+        context (CallbackContext): The callback context.
+
+    Returns:
+        int: The next state (SETTINGS or SET_LANG on error).
     """
     user = update.message.from_user
     message = update.message.text
@@ -259,10 +333,16 @@ def set_language(update: Update , context: CallbackContext):
     return SETTINGS
 
 def set_campus(update: Update , context: CallbackContext):
-    """
-    In this state is stored in the user_data the preference for the campus,
-    if the input check goes well it returns to the settings, otherwise remain
-    in the same state
+    """Sets the user's preferred campus.
+
+    Validates the input and updates the user data.
+
+    Args:
+        update (Update): The Telegram update object.
+        context (CallbackContext): The callback context.
+
+    Returns:
+        int: The next state (SETTINGS or SET_CAMPUS on error).
     """
     user = update.message.from_user
     message = update.message.text
@@ -278,10 +358,16 @@ def set_campus(update: Update , context: CallbackContext):
     return SETTINGS
 
 def set_time(update: Update , context: CallbackContext):
-    """
-    In this state is stored in the user_data the preference for the duration
-    in terms of hours for the quick search, if the input check goes well it
-    returns to the settings, otherwise remain in the same state
+    """Sets the user's preferred duration for quick search.
+
+    Validates the input and updates the user data.
+
+    Args:
+        update (Update): The Telegram update object.
+        context (CallbackContext): The callback context.
+
+    Returns:
+        int: The next state (SETTINGS or SET_TIME on error).
     """
     user = update.message.from_user
     message = update.message.text
@@ -403,9 +489,16 @@ def set_sublocation_state(update: Update, context: CallbackContext) -> int:
     errorhandler.bonk(update, texts, lang)
     return SET_SUBLOCATION
 def set_day_state(update: Update , context: CallbackContext) ->int:
-    """
-    In this state is saved in the user_data the chosen day for the search process,
-    if the input check goes well it returns to the set_start_time, otherwise remain in the same state
+    """Sets the date for the search.
+
+    Validates the date input and prompts for the start time.
+
+    Args:
+        update (Update): The Telegram update object.
+        context (CallbackContext): The callback context.
+
+    Returns:
+        int: The next state (SET_START_TIME or SET_DAY on error).
     """
     user = update.message.from_user
     message = update.message.text
@@ -425,9 +518,16 @@ def set_day_state(update: Update , context: CallbackContext) ->int:
 
 
 def set_start_time_state(update: Update , context: CallbackContext) ->int:
-    """
-    In this state is saved in the user_data the starting time of the search process,
-    if the input check goes well it returns to the end_state, otherwise remain in the same state
+    """Sets the starting time for the search.
+
+    Validates the time input and prompts for the end time.
+
+    Args:
+        update (Update): The Telegram update object.
+        context (CallbackContext): The callback context.
+
+    Returns:
+        int: The next state (SET_END_AND_SEND or SET_START_TIME on error).
     """
     user = update.message.from_user
     message = update.message.text
@@ -446,10 +546,17 @@ def set_start_time_state(update: Update , context: CallbackContext) ->int:
 
 
 def end_state(update: Update , context: CallbackContext) ->int:
-    """
-    Final state of the search process, check if the last input is valid and
-    proceed to return to the user all the free classrooms, otherwise remains
-    in the same state
+    """Executes the room search and displays results.
+
+    Validates the end time, performs the search using `find_free_room`, and sends
+    the results to the user.
+
+    Args:
+        update (Update): The Telegram update object.
+        context (CallbackContext): The callback context.
+
+    Returns:
+        int: The next state (INITIAL_STATE or SET_END_AND_SEND on error).
     """
     user = update.message.from_user
     message = update.message.text
@@ -503,8 +610,16 @@ def end_state(update: Update , context: CallbackContext) ->int:
 """FALLBACKS"""
 
 def terminate(update: Update, context: CallbackContext) -> int:
-    """
-    This function terminate the Conversation handler
+    """Terminates the conversation.
+
+    Clears user data and ends the conversation handler.
+
+    Args:
+        update (Update): The Telegram update object.
+        context (CallbackContext): The callback context.
+
+    Returns:
+        int: ConversationHandler.END
     """
     user = update.message.from_user
     lang = user_data_handler.get_lang(context)
@@ -518,8 +633,11 @@ def terminate(update: Update, context: CallbackContext) -> int:
 
 
 def info(update: Update, context: CallbackContext):
-    """
-    Return some info to the user
+    """Sends information about the bot to the user.
+
+    Args:
+        update (Update): The Telegram update object.
+        context (CallbackContext): The callback context.
     """
     user = update.message.from_user
     lang = user_data_handler.get_lang(context)
@@ -529,8 +647,14 @@ def info(update: Update, context: CallbackContext):
     return
 
 def cancel(update: Update, context: CallbackContext):
-    """
-    Stop any process and return to the initial state
+    """Cancels the current operation and returns to the initial state.
+
+    Args:
+        update (Update): The Telegram update object.
+        context (CallbackContext): The callback context.
+
+    Returns:
+        int: The initial state (INITIAL_STATE).
     """
     user = update.message.from_user
     lang = user_data_handler.get_lang(context)

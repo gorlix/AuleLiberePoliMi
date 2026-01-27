@@ -20,10 +20,16 @@ MAX_TIME = 20
 GARBAGE = ["PROVA_ASICT" , "2.2.1-D.I."]
 
 
-"""
-Clean the dict with all the class occupancies from rooms that don't exists or are unreacheable
-"""
+
 def clean_data(infos):
+    """Filters out non-existent or unreachable rooms from the occupancy data.
+
+    Args:
+        infos (dict): The dictionary containing classroom occupancy information.
+
+    Returns:
+        dict: The cleaned dictionary with invalid rooms removed.
+    """
     for building in infos:
         for room in GARBAGE:
             if room in infos[building]:
@@ -32,13 +38,21 @@ def clean_data(infos):
     return infos
 
 
-"""
-Return a dict with all the info about the classrooms for the chosen day , 
-the function makes a get requests to the URL and then 
-build a dict with the classes information stored on the html table (the code may not be perfect 🥲)
-"""
-
 def find_classrooms(location , day , month , year):
+    """Retrieves classroom information for a specific date and location.
+
+    Makes a GET request to the Politecnico di Milano online services and parses
+    the HTML response to extract room occupancy data.
+
+    Args:
+        location (str): The campus location code (e.g., 'MIA').
+        day (int): The day of the month.
+        month (int): The month (1-12).
+        year (int): The year (YYYY).
+
+    Returns:
+        dict: A dictionary containing structured information about classrooms and their schedules.
+    """
     info = {} 
     buildingName = '-' #defaul value for building
     info[buildingName] = {} #first initialization due to table format

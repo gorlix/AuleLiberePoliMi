@@ -21,8 +21,10 @@ Ready to find a classroom? Start chatting with the bot now!
 ## Features
 
 - **Smart Search**: Find free classrooms by Campus, Day, and Time slot.
-- **High Performance**: Implements **Intelligent Caching** (30min TTL) to ensure instant responses for repeated queries.
-- **Granular Opening Hours**: Automatically respects specific building schedules (e.g., knows that *Edificio 11* is closed on Saturdays while *Bassini* is open).
+- **Power Plugs 🔌**: Instantly see which classrooms have power outlets available.
+- **Customizable Interface**: Toggle between **Emoji Mode** (compact) and **Classic Text Mode** via settings.
+- **High Performance**: Implements **Intelligent Caching** (1 hour TTL) to ensure instant responses for repeated queries.
+- **Granular Opening Hours**: Automatically respects specific building schedules
 - **Multi-language**: Fully localized in **Italian** 🇮🇹 and **English** 🇬🇧.
 - **Docker Ready**: Zero-config deployment with Docker and Docker Compose.
 - **User Friendly**: Interactive keyboards and "Quick Search" (Now) button.

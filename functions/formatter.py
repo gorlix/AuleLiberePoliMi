@@ -1,28 +1,32 @@
 import math
 
 def format_time(time_float):
-    """
-    Converts a float time (e.g. 15.25) to a string HH:MM (e.g. 15:15).
+    """Converts a floating-point time value to a string in HH:MM format.
+
+    Args:
+        time_float (float): The time to format (e.g., 15.25).
+
+    Returns:
+        str: The formatted time string (e.g., "15:15").
     """
     hours = int(time_float)
     minutes = int((time_float - hours) * 60)
     return f"{hours:02d}:{minutes:02d}"
 
 def format_room(room, until_time, mode, texts):
-    """
-    Formats a single room string based on the selected mode.
-    
+    """Formats a single room string based on the selected display mode.
+
     Args:
-        room (dict): Room information containing 'name', 'link', 'powerPlugs', etc.
-        until_time (float): The time until the room is free.
-        mode (str): 'text' or 'emoji'.
-        texts (dict): Dictionary of texts for the current language.
-        
+        room (dict): A dictionary containing room information (name, link, powerPlugs, etc.).
+        until_time (float): The time until which the room is free.
+        mode (str): The display mode, either 'text' or 'emoji'.
+        texts (dict): A dictionary of localized text strings.
+
     Returns:
-        str: Formatted string for the room.
+        str: The formatted string representing the room.
     """
-    # Use ideographic space (U+3000) for alignment if plug is missing
-    # Normal space is too narrow compared to emoji.
+    # Use ideographic space (U+3000) for alignment if the power plug icon is missing.
+    # A normal space is too narrow compared to the emoji width.
     emoji_plug = "🔌" if room['powerPlugs'] else '\u3000'
     
     if mode == 'emoji':
@@ -31,6 +35,6 @@ def format_room(room, until_time, mode, texts):
         return f' <a href ="{room["link"]}">{room["name"]:^10}</a> {emoji_plug} 🕒 ➜ {formatted_time}\n'
     else:
         # Text Mode (Classic): <link>room</link> (free until 20) 🔌
-        # Matching the original format exactly for backward compatibility
+        # Matches the original format exactly for backward compatibility.
         emoji_plug_text = "🔌" if room['powerPlugs'] else ''
         return f' <a href ="{room["link"]}">{room["name"]:^10}</a> ({texts["until"]} {until_time}) {emoji_plug_text}\n'

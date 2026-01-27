@@ -3,10 +3,18 @@ from functions import formatter
 
 
 def room_builder_str(available_rooms, texts, format_mode='text'):
-    """
-    this function take as input the list af all tha available classtooms
-    and parse the list into a list of multiple string in order to not exceed the telegram
-    len limit
+    """Parses the list of available classrooms and generates a list of formatted strings.
+
+    The output is split into multiple strings if necessary to respect the Telegram
+    message length limit.
+
+    Args:
+        available_rooms (dict): A dictionary where keys are building names and values are lists of room dictionaries.
+        texts (dict): A dictionary of localized text strings.
+        format_mode (str, optional): The display format ('text' or 'emoji'). Defaults to 'text'.
+
+    Returns:
+        list: A list of formatted strings ready to be sent as messages.
     """
     if not available_rooms:
         return []
