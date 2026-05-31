@@ -10,8 +10,8 @@ import telegram
 from telegram.message import Message
 from search.free_classroom import find_free_room
 from search.find_classrooms import TIME_SHIFT , MAX_TIME , MIN_TIME
-from telegram import  Update , ReplyKeyboardMarkup ,ReplyKeyboardRemove
-from telegram.ext import (PicklePersistence,Updater,CommandHandler,ConversationHandler,CallbackContext,MessageHandler , Filters , CallbackQueryHandler)
+from telegram import  Update , ReplyKeyboardMarkup ,ReplyKeyboardRemove , InlineQueryResultArticle , InputTextMessageContent
+from telegram.ext import (PicklePersistence,Updater,CommandHandler,ConversationHandler,CallbackContext,MessageHandler , Filters , CallbackQueryHandler , InlineQueryHandler)
 from datetime import datetime , timedelta
 from telegram import ParseMode
 from functions import errorhandler , string_builder , input_check , keyboard_builder , user_data_handler ,regex_builder
@@ -667,6 +667,89 @@ def cancel(update: Update, context: CallbackContext):
 
 
 
+def inline_query_handler(update: Update, context: CallbackContext):
+    """Handles inline queries: runs the 'Now' search using saved user preferences."""
+    user = update.inline_query.from_user
+    lang = user_data_handler.get_lang(context)
+    format_mode = user_data_handler.get_format_mode(context)
+    loc, dur = user_data_handler.get_user_preferences(context)
+
+    logging.info("%d : %s inline query", user.id, user.username)
+
+    if loc is None:
+        result = InlineQueryResultArticle(
+            id="no_prefs",
+            title="⚠️ No campus preference set",
+            description="Open the bot and set your campus in Preferences first",
+            input_message_content=InputTextMessageContent(texts[lang]["texts"]["missing"])
+        )
+        update.inline_query.answer([result], cache_time=0)
+        return
+
+    start_time = int(datetime.now(pytz.timezone('Europe/Rome')).strftime('%H'))
+    if start_time >= MAX_TIME or start_time < MIN_TIME:
+        start_time = MIN_TIME
+    end_time = start_time + dur if start_time + dur < MAX_TIME else MAX_TIME
+
+    if loc in location_dict:
+        location_code = location_dict[loc]["code"]
+        location_name = loc
+    else:
+        location_code = loc
+        location_name = loc
+
+    now_date = datetime.now(pytz.timezone('Europe/Rome'))
+    date_str = now_date.strftime("%d/%m/%Y")
+
+    try:
+        available_rooms = find_free_room(
+            float(start_time + TIME_SHIFT),
+            float(end_time + TIME_SHIFT),
+            location_code,
+            now_date.day,
+            now_date.month,
+            now_date.year
+        )
+
+        header = f"📅 <b>{date_str}</b>\n📍 <b>{location_name}</b>\n⏰ <b>{start_time}:00 - {end_time}:00</b>"
+
+        if not available_rooms:
+            no_rooms_msg = header + "\n\n" + texts[lang]["texts"]["no_rooms"]
+            result = InlineQueryResultArticle(
+                id="no_rooms",
+                title=f"🏫 {location_name} — {start_time}:00/{end_time}:00",
+                description=texts[lang]["texts"]["no_rooms"],
+                input_message_content=InputTextMessageContent(no_rooms_msg, parse_mode=ParseMode.HTML)
+            )
+            update.inline_query.answer([result], cache_time=0)
+            return
+
+        pages = string_builder.room_builder_str(available_rooms, texts[lang]["texts"], format_mode)
+        results = []
+        for i, page in enumerate(pages):
+            full_msg = header + "\n" + page
+            suffix = f" (p.{i + 1})" if len(pages) > 1 else ""
+            results.append(InlineQueryResultArticle(
+                id=f"rooms_{i}",
+                title=f"🏫 {location_name} — {start_time}:00/{end_time}:00{suffix}",
+                description=date_str,
+                input_message_content=InputTextMessageContent(full_msg, parse_mode=ParseMode.HTML)
+            ))
+
+        update.inline_query.answer(results, cache_time=0)
+
+    except Exception as e:
+        logging.error("Inline query error: %s", e)
+        result = InlineQueryResultArticle(
+            id="error",
+            title="❌ Error during search",
+            input_message_content=InputTextMessageContent(
+                texts[lang]["texts"]["exception"], parse_mode=ParseMode.HTML
+            )
+        )
+        update.inline_query.answer([result], cache_time=0)
+
+
 """BOT INITIALIZATION"""
 
 DATAPATH = "data/"
@@ -702,6 +785,7 @@ def main():
 
     dispatcher.add_error_handler(errorhandler.error_handler)
     dispatcher.add_handler(conv_handler)
+    dispatcher.add_handler(InlineQueryHandler(inline_query_handler))
 
     # Heartbeat job
     def heartbeat(context: CallbackContext):
