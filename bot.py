@@ -14,7 +14,7 @@ from telegram import  Update , ReplyKeyboardMarkup ,ReplyKeyboardRemove , Inline
 from telegram.ext import (PicklePersistence,Updater,CommandHandler,ConversationHandler,CallbackContext,MessageHandler , Filters , CallbackQueryHandler , InlineQueryHandler)
 from datetime import datetime , timedelta
 from telegram import ParseMode
-from functions import errorhandler , string_builder , input_check , keyboard_builder , user_data_handler ,regex_builder
+from functions import errorhandler , string_builder , input_check , keyboard_builder , user_data_handler ,regex_builder , analytics
 
 
 LOGPATH = "log/"
@@ -259,6 +259,7 @@ def start(update: Update , context: CallbackContext) ->int:
     lang = user_data_handler.initialize_user_data(context)
     user = update.message.from_user
     initial_keyboard = KEYBOARDS.initial_keyboard(lang)
+    analytics.track(user.id, user.username)
     logging.info("%s started conversation" , user.username)
 
     update.message.reply_text(texts[lang]["texts"]['welcome'].format(user.username),disable_web_page_preview=True , parse_mode=ParseMode.HTML , reply_markup=ReplyKeyboardMarkup(initial_keyboard))
@@ -674,6 +675,7 @@ def inline_query_handler(update: Update, context: CallbackContext):
     format_mode = user_data_handler.get_format_mode(context)
     loc, dur = user_data_handler.get_user_preferences(context)
 
+    analytics.track(user.id, user.username)
     logging.info("%d : %s inline query", user.id, user.username)
 
     if loc is None:
@@ -724,15 +726,14 @@ def inline_query_handler(update: Update, context: CallbackContext):
             update.inline_query.answer([result], cache_time=0)
             return
 
-        pages = string_builder.room_builder_str(available_rooms, texts[lang]["texts"], format_mode)
+        buildings = string_builder.building_builder_str(available_rooms, texts[lang]["texts"], format_mode)
         results = []
-        for i, page in enumerate(pages):
-            full_msg = header + "\n" + page
-            suffix = f" (p.{i + 1})" if len(pages) > 1 else ""
+        for building_name, building_str in buildings:
+            full_msg = header + building_str
             results.append(InlineQueryResultArticle(
-                id=f"rooms_{i}",
-                title=f"🏫 {location_name} — {start_time}:00/{end_time}:00{suffix}",
-                description=date_str,
+                id=f"building_{building_name}",
+                title=f"🏫 {building_name}",
+                description=f"{location_name} | {start_time}:00 - {end_time}:00 | {date_str}",
                 input_message_content=InputTextMessageContent(full_msg, parse_mode=ParseMode.HTML)
             ))
 
@@ -755,6 +756,8 @@ def inline_query_handler(update: Update, context: CallbackContext):
 DATAPATH = "data/"
 if not os.path.exists(DATAPATH):
     os.mkdir(DATAPATH)
+
+analytics.init(DATAPATH)
 
 def main():
     #add persistence for states
