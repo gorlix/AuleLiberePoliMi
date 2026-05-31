@@ -2,6 +2,17 @@ from telegram.constants import MAX_MESSAGE_LENGTH
 from functions import formatter
 
 
+def building_builder_str(available_rooms, texts, format_mode='text'):
+    """Returns a list of (building_name, formatted_string) tuples, one per building."""
+    results = []
+    for building in available_rooms:
+        building_str = f'\n<b>{building}</b>\n'
+        for room in available_rooms[building]:
+            building_str += formatter.format_room(room, room['until'], format_mode, texts)
+        results.append((building, building_str))
+    return results
+
+
 def room_builder_str(available_rooms, texts, format_mode='text'):
     """Parses the list of available classrooms and generates a list of formatted strings.
 
